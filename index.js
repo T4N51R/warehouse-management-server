@@ -19,6 +19,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('prefume-warehouse').collection('perfumes');
+        const userCollection = client.db('prefume-warehouse').collection('cart');
 
         app.get('/products', async (req, res) => {
             const query = {};
@@ -42,6 +43,38 @@ async function run() {
             res.send(result);
         });
 
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { ...data },
+            };
+            const result = await productCollection.updateOne(filter, updateDoc, options)
+            console.log('updated')
+            res.json(result)
+        })
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+        app.get('/userAedded', async (req, res) => {
+            const query = {};
+            const cursor = userCollection.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+        });
+
+        app.post('/userAedded', async (req, res) => {
+            const newProduct = req.body;
+            const result = await userCollection.insertOne(newProduct);
+            res.send(result);
+        });
     } finally {
 
     }
