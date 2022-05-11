@@ -146,7 +146,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Hurryyyyyyyyyyyyyyyyyyyyy')
+    res.send('Server Running')
 })
 app.listen(port, () => {
     console.log('server running')
