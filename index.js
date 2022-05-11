@@ -41,6 +41,7 @@ async function run() {
         const productCollection = client.db('prefume-warehouse').collection('perfumes');
         const userCollection = client.db('prefume-warehouse').collection('cart');
 
+        //genarate token
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -57,6 +58,7 @@ async function run() {
             res.send(products);
         });
 
+        //API for get products by ID
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
@@ -66,12 +68,14 @@ async function run() {
             res.send(products);
         });
 
+        // Add products API 
         app.post('/products', async (req, res) => {
             const newProduct = req.body;
             const result = await productCollection.insertOne(newProduct);
             res.send(result);
         });
 
+        // Update Poructs API 
         app.put('/products/:id', async (req, res) => {
             const id = req.params.id;
             const data = req.body;
@@ -84,6 +88,8 @@ async function run() {
             console.log('updated')
             res.json(result)
         })
+
+        // Delete Product API 
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -91,13 +97,13 @@ async function run() {
             res.send(result);
         });
 
-        //Data added by user get and post
+        //Get user By email Address
         app.get('/userAedded', verifyJWT, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const email = req.query.email;
             if (decodedEmail === email) {
                 const query = { email: email };
-                const cursor = userCollection.find(query);
+                const cursor = productCollection.find(query);
                 const products = await cursor.toArray();
                 res.send(products);
             }
@@ -106,9 +112,11 @@ async function run() {
             }
 
         });
-        app.post('/userAedded', async (req, res) => {
-            const newProduct = req.body;
-            const result = await userCollection.insertOne(newProduct);
+
+        app.delete('/userAedded/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
             res.send(result);
         });
     } finally {
