@@ -39,7 +39,8 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('prefume-warehouse').collection('perfumes');
-        const userCollection = client.db('prefume-warehouse').collection('cart');
+        const userReview = client.db('prefume-warehouse').collection('review');
+
 
         //genarate token
         app.post('/login', async (req, res) => {
@@ -119,6 +120,23 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
+
+        // Get User Review API
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = userReview.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+
+        });
+
+        //post review from client side
+        app.post('/review', async (req, res) => {
+            const newProduct = req.body;
+            const result = await userReview.insertOne(newProduct);
+            res.send(result);
+        });
+
     } finally {
 
     }
